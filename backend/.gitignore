@@ -1,12 +1,5 @@
 node_modules/
 
 .env
-# Ignore User and Dealer controllers
-backend/controllers/usercontroller.js
-controllers/dealercontroller.js
-
-# Ignore User and Dealer routes
-backend/routes/user.routes.js
-backend/routes/dealer.routes.js
 
 
