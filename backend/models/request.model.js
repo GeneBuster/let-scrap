@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
+import '../models/user.model.js';
+import '../models/dealer.model.js';
 const ScrapRequestSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,

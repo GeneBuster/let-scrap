@@ -1,8 +1,27 @@
-const express = require("express");
-const connectDB = require("./database/db");
+import express from 'express';
+import connectDB from './database/db.js';
+import scrapRequestRoutes from './routes/scrapRequest.routes.js';
+import dotenv from 'dotenv';
 
-require("dotenv").config();
+dotenv.config();
 const app = express();
-connectDB(); // Connect to MongoDB
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+
+app.use(express.json()); 
+
+
+connectDB();
+
+
+app.use('/api/scrap-requests', scrapRequestRoutes);
+
+app.get('/', (req, res) => {
+    res.send('API is running...');
+});
+
+const PORT = 5000;
+
+app.listen(PORT, () => {
+    
+    console.log(`Server is running on port ${PORT}`);
+});

@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-
-const DealerSchema = new mongoose.Schema({
+import mongoose from 'mongoose';
+const UserSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -28,21 +27,12 @@ const DealerSchema = new mongoose.Schema({
         zip: String,
         country: String
     },
-    status: {
-        type: String,
-        enum: ['online', 'offline'],
-        default: 'offline'
-    },
-    acceptedRequests: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ScrapRequest'
-    }],
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
 
-const Dealer = mongoose.model('Dealer', DealerSchema);
+const User = mongoose.model('User', UserSchema);
 
-export default Dealer
+export default User
