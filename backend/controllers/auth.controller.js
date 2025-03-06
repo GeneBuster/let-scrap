@@ -51,7 +51,7 @@ export const registerDealer = async (req, res) => {
 };
 
 // Login (Detects if email exists in User or Dealer collection)
-export const login = async (req, res) => {
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });

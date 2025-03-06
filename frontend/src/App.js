@@ -7,7 +7,8 @@ import Dealers from "./pages/dealers.jsx";
 import History from "./pages/history.jsx";
 import Contact from "./pages/contact.jsx";
 import HomePage from './pages/homepage.jsx'; 
-
+import Home from './pages/home.jsx'
+import DashBoard from "./pages/dashboard.jsx";
 function App() {
   return (
     <Router>
@@ -19,8 +20,10 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<HomePage />} />
+        <Route path="/api/auth/dashboard" element={<DashBoard/>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
 
     </Router>

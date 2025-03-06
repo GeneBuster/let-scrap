@@ -9,7 +9,7 @@ const HomePage = () => {
 
     if (token) {
       axios
-        .get('http://localhost:5000/api/protected/home', {
+        .get('http://localhost:5000/api/auth/dashboard', {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
