@@ -8,20 +8,31 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
 
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email: email,
-        password: password, // Fixed typo
+
+        password: password,
+
       });
 
       localStorage.setItem("token", response.data.token);
 
-      navigate("/home"); // Fixed navigation
+      navigate('/api/auth/dashboard'); 
     } catch (err) {
-      setError("Invalid credentials, please try again.");
+      console.error('login error', err.response || err);
+      setError('Invalid credentials, please try again.');
+
     }
   };
 
