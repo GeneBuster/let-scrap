@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-// import Home from "./pages/home.jsx";
 import LoginPage from "./pages/login.jsx";
 import Signup from "./pages/signup.jsx";
 import PickupRequests from "./pages/PickupRequests";
 import Dealers from "./pages/dealers.jsx";
 import History from "./pages/history.jsx";
 import Contact from "./pages/contact.jsx";
-import HomePage from './pages/homepage.jsx'; 
-import BillGen from "./pages/billgen.jsx";
-import ScrapRequest from "./pages/PickupRequests.jsx";
-import ManageScrapRequests from "./pages/managescrapreq.jsx";
+
+// import HomePage from './pages/homepage.jsx'; 
+import Home from './pages/home.jsx'
+import DashBoard from "./pages/dashboard.jsx";
+import ProfilePage from "./pages/profilePage.jsx";
 
 function App() {
   const userId = localStorage.getItem("userId");
@@ -23,11 +23,12 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/generate-bill" element={<BillGen />} />
-        <Route path="/scrap-request" element={<ScrapRequest userId={userId} />} />
-        <Route path="/manage-requests" element={<ManageScrapRequests userId={userId} />} />
+
+        <Route path="/dashboard" element={<DashBoard />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<ProfilePage/>} />
+
       </Routes>
 
     </Router>

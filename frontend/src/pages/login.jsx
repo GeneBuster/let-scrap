@@ -17,8 +17,11 @@ const LoginPage = () => {
         password: password,
       });
 
-      localStorage.setItem('token', response.data.token);
-      navigate('/home');
+
+      localStorage.setItem("token", response.data.token);
+
+      navigate('/dashboard'); 
+
     } catch (err) {
       setError('Invalid credentials, please try again.');
     }
