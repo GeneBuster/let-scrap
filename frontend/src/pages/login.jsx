@@ -27,7 +27,7 @@ const LoginPage = () => {
 
       localStorage.setItem('token', response.data.token);
 
-      navigate('/api/auth/dashboard'); 
+      navigate('/dashboard'); 
     } catch (err) {
       console.error('login error', err.response || err);
       setError('Invalid credentials, please try again.');
