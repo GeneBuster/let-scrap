@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './dashboard.css';  // Importing the updated CSS
+import profilePicture from '../resource/pfp.jpg'
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -43,13 +44,29 @@ const Dashboard = () => {
     navigate(route); // Handle the button clicks and navigate to respective routes
   };
 
+  const handleProfileClick = () => {
+    navigate('/profile'); // Navigate to the Profile Page when the profile image or name is clicked
+  };
+
   return (
     <div className="dashboard-container">
       <div className="profile-section">
         <div className="profile-header">
-          <h2>Welcome, {user.name}</h2>
-          <p>Email: {user.email}</p>
-          <p>Phone: {user.phone || 'N/A'}</p>
+          {/* Profile Image and Name Section */}
+          <div className="profile-info" onClick={handleProfileClick}>
+            <div className="profile-pfp">
+              {/* Profile Picture */}
+              <img
+                src={profilePicture || 'https://via.placeholder.com/50'} // Default to placeholder if no profile picture
+                alt="Profile"
+                className="profile-pfp-img"
+              />
+            </div>
+            <div className="profile-name">
+              {/* User Name */}
+              <h2>{user.name}</h2>
+            </div>
+          </div>
         </div>
       </div>
 

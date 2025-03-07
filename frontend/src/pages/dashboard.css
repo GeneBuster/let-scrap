@@ -2,117 +2,154 @@
 
 /* General Layout */
 .dashboard-container {
-    background-color: #f4f7fb;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Space between content (Profile) and bottom (Cards) */
-    align-items: center;
-    height: 100vh;  /* Full viewport height */
-    padding: 40px 20px;
-    font-family: 'Arial', sans-serif;
-    position: relative;
+  background-color: #f4f7fb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Profile Section */
+.profile-section {
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.profile-header h2 {
+  color: #4e4e4e;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.profile-header p {
+  color: #6b6b6b;
+  font-size: 18px;
+  margin: 5px 0;
+}
+
+/* Profile Info (PFP + Name) */
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer; /* Makes the whole section clickable */
+}
+
+.profile-pfp {
+  width: 60px;  /* Profile picture size */
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ddd;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth transition for zoom effect and shadow */
+  cursor: pointer;
+}
+
+.profile-pfp-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hover effect for zooming the PFP (similar to cards) */
+.profile-pfp:hover {
+  transform: scale(1.1);  /* Zoom-in effect on hover */
+  box-shadow: 0 0 20px 5px rgba(255, 0, 0, 0.7);  /* Neon reddish glow on hover */
+}
+
+/* Profile Name Styling */
+.profile-name h2 {
+  font-size: 22px;
+  color: #333; /* No blue color for the name */
+  margin: 0;
+  cursor: pointer;
+}
+
+.profile-name h2:hover {
+  text-decoration: underline;  /* Optional: Add underline on hover for name */
+}
+
+/* Action Buttons (Tiles) */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;  /* Space between the cards */
+  justify-content: center;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.card {
+  width: 200px;  /* Card width */
+  height: 250px;  /* Card height */
+  background-color: rgba(255, 255, 255, 0.8);  /* Transparent background */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);  /* Light shadow */
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth transition for hover effect */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card:hover {
+  transform: scale(1.1);  /* Zoom-in effect */
+  box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.7);  /* Neon reddish glow on hover */
+}
+
+.card-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-bottom: 2px solid #ddd;
+}
+
+.card-content {
+  padding: 10px;
+  text-align: center;
+}
+
+.card-content h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+/* Error and Loading Message */
+.error-message {
+  color: #d9534f;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.loading-message {
+  color: #f0ad4e;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 20px;
   }
-  
-  /* Profile Section */
-  .profile-section {
-    background-color: #ffffff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 600px;
-  }
-  
-  .profile-header h2 {
-    color: #4e4e4e;
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  .profile-header p {
-    color: #6b6b6b;
-    font-size: 18px;
-    margin: 5px 0;
-  }
-  
-  /* Card Section (Tiles) */
+
   .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;  /* Space between the cards */
-    justify-content: center;
-    margin-top: 30px;
     width: 100%;
-    margin-bottom: 40px;  /* Space from the bottom */
+    gap: 10px;
   }
-  
+
   .card {
-    width: 200px;  /* Card width */
-    height: 250px;  /* Card height */
-    background-color: rgba(255, 255, 255, 0.8);  /* Transparent background */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);  /* Light shadow */
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth transition for hover effect */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+    width: 100%;  /* Full width on smaller screens */
+    height: auto;
   }
-  
-  .card:hover {
-    transform: scale(1.1);  /* Zoom-in effect */
-    box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.7);  /* Neon reddish glow on hover */
-  }
-  
-  .card-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-bottom: 2px solid #ddd;
-  }
-  
-  .card-content {
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .card-content h3 {
-    font-size: 18px;
-    color: #333;
-  }
-  
-  /* Error and Loading Message */
-  .error-message {
-    color: #d9534f;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .loading-message {
-    color: #f0ad4e;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  /* Responsiveness for Smaller Screens */
-  @media (max-width: 768px) {
-    .dashboard-container {
-      padding: 20px;
-    }
-  
-    .actions {
-      width: 100%;
-      gap: 10px;
-    }
-  
-    .card {
-      width: 100%;  /* Full width on smaller screens */
-      height: auto;
-    }
-  }
-  
+}

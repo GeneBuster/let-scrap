@@ -1,0 +1,89 @@
+/* ProfilePage.css */
+
+/* General Layout for Profile Page */
+.profile-page-container {
+    background-color: #f8f9fc;
+    padding: 40px 20px;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Full height of the screen */
+  }
+  
+  .page-title {
+    color: #4A4A4A;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  
+  /* Profile Section */
+  .profile-details {
+    background-color: #ffffff;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 700px;
+    margin-top: 30px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  .profile-pfp {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #ff4f5a;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .profile-pfp-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Hover effect for zooming the PFP (similar to cards) */
+  .profile-pfp:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 15px rgba(255, 0, 0, 0.7); /* Neon reddish glow on hover */
+  }
+  
+  /* Profile Name Styling */
+  .profile-info-name {
+    font-size: 28px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .profile-info-text {
+    font-size: 18px;
+    color: #666;
+    margin: 5px 0;
+  }
+  
+  /* Error and Loading Message */
+  .error-message {
+    color: #d9534f;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .loading-message {
+    color: #f0ad4e;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
