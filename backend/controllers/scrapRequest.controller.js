@@ -1,31 +1,32 @@
 import ScrapRequest from '../models/request.model.js'
+import User from '../models/user.model.js'
 
 export const createScrapRequest = async (req, res) => {
     try {
-        const { user, items, pickupAddress } = req.body;
-
-
-        const newRequest = new ScrapRequest({
-            user,
-            items,
-            pickupAddress,
-            status: 'Pending'
-        });
-
-        await newRequest.save();
-
-        res.status(201).json({
-            message: 'Scrap request created successfully',
-            request: newRequest
-        });
+      const { scrapType, quantity, pickupAddress, preferredPickupTime } = req.body;
+      
+      // Check if the user is valid (already handled in the verifyToken middleware)
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Create the scrap request
+      const newScrapRequest = new ScrapRequest({
+        scrapType,
+        quantity,
+        pickupAddress,
+        preferredPickupTime,
+        sellerId: req.user.id,  // Associate the scrap request with the seller's user ID
+        status: 'Pending',  // You can have a status to track the request (Pending, Completed, etc.)
+      });
+  
+      await newScrapRequest.save();
+      res.status(201).json({ message: 'Scrap pickup request submitted successfully', scrapRequest: newScrapRequest });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to create scrap request',
-            error: error.message
-        });
+      res.status(500).json({ error: error.message });
     }
-};
+  };
 
 export const getAllScrapRequests = async (req, res) => {
     try {

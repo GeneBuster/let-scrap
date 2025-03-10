@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/login.jsx";
 import Signup from "./pages/signup.jsx";
-import PickupRequests from "./pages/PickupRequests";
+import ScrapRequest from "./pages/PickupRequests";
 import Dealers from "./pages/dealers.jsx";
 import History from "./pages/history.jsx";
 import Contact from "./pages/contact.jsx";
@@ -30,7 +30,7 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/bill-generation" element={<BillGen />} />
-        <Route path="/pickup-requests" element={<PickupRequests />} />
+        <Route path="/pickup-requests" element={<ScrapRequest />} />
         <Route path="/order-status" element={<ManageScrapRequests/>} />
       </Routes>
 

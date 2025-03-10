@@ -72,7 +72,7 @@ const Dashboard = () => {
 
       <div className="actions">
         {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/place-order')}>
+        <div className="card" onClick={() => handleButtonClick('/pickup-requests')}>
           <img src="https://via.placeholder.com/150" alt="Place Order" className="card-image" />
           <div className="card-content">
             <h3>Place an Order</h3>
