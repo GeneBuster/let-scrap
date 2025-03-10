@@ -1,39 +1,36 @@
 import mongoose from 'mongoose';
 import '../models/user.model.js';
 import '../models/dealer.model.js';
-const ScrapRequestSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    items: [
-        {
-            itemType: { type: String, required: true }, // e.g., plastic, metal, paper
-            weight: { type: Number, required: true } // in kg
-        }
-    ],
-    pickupAddress: {
-        street: String,
-        city: String,
-        state: String,
-        zip: String
-    },
-    status: {
-        type: String,
-        enum: ['Pending', 'Accepted', 'Completed', 'Cancelled'],
-        default: 'Pending'
-    },
-    dealer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dealer',
-        default: null // Assigned once a dealer accepts the request
-    },
-    requestedAt: {
-        type: Date,
-        default: Date.now
-    }
-});
 
-const request= mongoose.model('ScrapRequest', ScrapRequestSchema);
-export default request
+const ScrapRequestSchema = new mongoose.Schema({
+  scrapType: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  pickupAddress: {
+    type: String,
+    required: true,
+  },
+  preferredPickupTime: {
+    type: Date,
+    required: true,
+  },
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',  // Reference to the User model
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'Completed', 'Cancelled'],
+    default: 'Pending',
+  },
+}, { timestamps: true });
+
+const request = mongoose.model('ScrapRequest', ScrapRequestSchema);
+
+export default request;

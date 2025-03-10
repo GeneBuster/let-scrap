@@ -26,7 +26,7 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dealers", dealerRoutes);
-app.use("/api/scrap-requests", scrapRequestRoutes);
+app.use("/api/request", scrapRequestRoutes);
 app.use('/api/bills', billRoutes);
 
 app.get("/", (req, res) => {
