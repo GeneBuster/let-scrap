@@ -6,11 +6,12 @@ import {
     deleteScrapRequest,
     getUserRequests
 } from '../controllers/scrapRequest.controller.js';
+import {authMiddleware} from '../utils/auth.middleware.js'
 
 const router = express.Router();
 
 
-router.post('/create', createScrapRequest);
+router.post('/pickup-request',authMiddleware, createScrapRequest);
 
 router.get('/', getAllScrapRequests);
 

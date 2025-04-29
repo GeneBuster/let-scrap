@@ -1,8 +1,10 @@
 import ScrapRequest from '../models/request.model.js'
+import User from '../models/user.model.js'
 
 export const createScrapRequest = async (req, res) => {
     console.log("✅ createScrapRequest hit with body:", req.body); // Add this
     try {
+
         const { user, items, pickupAddress } = req.body;
 
         const newRequest = new ScrapRequest({
@@ -24,8 +26,9 @@ export const createScrapRequest = async (req, res) => {
             message: 'Failed to create scrap request',
             error: error.message
         });
+
     }
-};
+  };
 
 
 export const getAllScrapRequests = async (req, res) => {

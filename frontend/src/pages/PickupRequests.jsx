@@ -1,5 +1,5 @@
-import { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const ScrapRequest = ({ userId }) => {
   const [formData, setFormData] = useState({
@@ -118,6 +118,8 @@ const ScrapRequest = ({ userId }) => {
       </form>
     </div>
   );
+
+
 };
 
 export default ScrapRequest;
