@@ -1,9 +1,9 @@
 import ScrapRequest from '../models/request.model.js'
 
 export const createScrapRequest = async (req, res) => {
+    console.log("✅ createScrapRequest hit with body:", req.body); // Add this
     try {
         const { user, items, pickupAddress } = req.body;
-
 
         const newRequest = new ScrapRequest({
             user,
@@ -19,13 +19,14 @@ export const createScrapRequest = async (req, res) => {
             request: newRequest
         });
     } catch (error) {
-        console.error(error);
+        console.error("❌ Error creating request:", error.message);
         res.status(500).json({
             message: 'Failed to create scrap request',
             error: error.message
         });
     }
 };
+
 
 export const getAllScrapRequests = async (req, res) => {
     try {
@@ -48,14 +49,15 @@ export const updateScrapRequestStatus = async (req, res) => {
     try {
         const { requestId, status, dealerId } = req.body;
 
+        // Find and update the scrap request with the provided dealerId and status
         const updatedRequest = await ScrapRequest.findByIdAndUpdate(
             requestId,
             {
                 status, 
-                dealer: dealerId || null 
+                dealer: dealerId || null // Associate the dealerId with the request
             },
             { new: true }
-        ).populate('user').populate('dealer'); 
+        ).populate('user').populate('dealer'); // Populate user and dealer fields
 
         if (!updatedRequest) {
             return res.status(404).json({ message: 'Scrap request not found' });
@@ -73,7 +75,6 @@ export const updateScrapRequestStatus = async (req, res) => {
         });
     }
 };
-
 
 export const deleteScrapRequest = async (req, res) => {
     try {
@@ -94,5 +95,14 @@ export const deleteScrapRequest = async (req, res) => {
             message: 'Failed to delete scrap request',
             error: error.message
         });
+    }
+};
+export const getUserRequests = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const requests = await ScrapRequest.find({ user: userId }).populate('dealer');
+        res.status(200).json(requests);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch user requests', error: error.message });
     }
 };

@@ -6,7 +6,16 @@ export const getDealerProfile = async (req, res) => {
     const dealer = await Dealer.findById(req.user.id).select("-password");
     if (!dealer) return res.status(404).json({ message: "Dealer not found" });
 
-    res.status(200).json(dealer);
+    res.status(200).json({
+      _id: dealer._id,
+      name: dealer.name,
+      email: dealer.email,
+      phone: dealer.phone,
+      address: dealer.address,
+      status: dealer.status,
+      createdAt: dealer.createdAt,
+      role: "dealer"        // ✅ IMPORTANT: Add role manually
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

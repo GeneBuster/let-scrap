@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './dashboard.css';  // Importing the updated CSS
-import profilePicture from '../resource/pfp.jpg'
+import './dashboard.css';
+import UserDashboard from './UserDashboard';
+import DealerDashboard from './DealerDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -10,109 +11,64 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Retrieve JWT token from localStorage
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');  // Get role from localStorage
 
-    if (token) {
-      // If the token exists, make an API call to fetch the user's profile
-      axios
-        .get('http://localhost:5000/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          setUser(response.data); // Set user data from the API response
-        })
-        .catch((error) => {
-          console.error('Failed to fetch user data:', error);
-          setError('Failed to load profile data'); // Handle any errors from the API
-        });
-    } else {
-      // If no token exists, redirect the user to the login page
+    if (!token) {
       setError('Please log in first');
-      navigate('/login');
+      navigate('/login'); // Redirect to login if no token
+      return;
     }
+
+    // If the user role is already available in localStorage, use it for immediate redirection
+    if (userRole) {
+      if (userRole === 'dealer') {
+        navigate('/dealer-dashboard');  // Direct to Dealer Dashboard
+      } else if (userRole === 'user') {
+        navigate('/user-dashboard');  // Direct to User Dashboard
+      }
+      return;  // Skip fetching user profile from the backend if role is available
+    }
+
+    // Fetch user data only if role is not in localStorage
+    axios
+      .get('http://localhost:5000/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setUser(response.data);
+
+        // Store the role in localStorage after fetching user data
+        const role = response.data.role;
+        localStorage.setItem('userRole', role); // Save the role in localStorage
+
+        // Redirect based on the fetched role
+        if (role === 'dealer') {
+          navigate('/dealer-dashboard');
+        } else if (role === 'user') {
+          navigate('/user-dashboard');
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch user data:', error);
+        setError('Failed to load profile data');
+      });
   }, [navigate]);
 
   if (error) {
-    return <div className="error-message">{error}</div>; // Show the error message
+    return <div className="error-message">{error}</div>;
   }
 
   if (!user) {
-    return <div className="loading-message">Loading...</div>; // Show loading message while waiting for the API response
+    return <div className="loading-message">Loading...</div>;
   }
 
-  const handleButtonClick = (route) => {
-    navigate(route); // Handle the button clicks and navigate to respective routes
-  };
+  // Render the correct dashboard component based on the user's role
+  if (user.role === 'dealer') {
+    return <DealerDashboard user={user} />;
+  }
 
-  const handleProfileClick = () => {
-    navigate('/profile'); // Navigate to the Profile Page when the profile image or name is clicked
-  };
-
-  return (
-    <div className="dashboard-container">
-      <div className="profile-section">
-        <div className="profile-header">
-          {/* Profile Image and Name Section */}
-          <div className="profile-info" onClick={handleProfileClick}>
-            <div className="profile-pfp">
-              {/* Profile Picture */}
-              <img
-                src={profilePicture || 'https://via.placeholder.com/50'} // Default to placeholder if no profile picture
-                alt="Profile"
-                className="profile-pfp-img"
-              />
-            </div>
-            <div className="profile-name">
-              {/* User Name */}
-              <h2>{user.name}</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="actions">
-        {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/place-order')}>
-          <img src="https://via.placeholder.com/150" alt="Place Order" className="card-image" />
-          <div className="card-content">
-            <h3>Place an Order</h3>
-          </div>
-        </div>
-
-        {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/order-history')}>
-          <img src="https://via.placeholder.com/150" alt="Order History" className="card-image" />
-          <div className="card-content">
-            <h3>Order History</h3>
-          </div>
-        </div>
-
-        {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/bill-generation')}>
-          <img src="https://via.placeholder.com/150" alt="Generate Bill" className="card-image" />
-          <div className="card-content">
-            <h3>Generate Bill</h3>
-          </div>
-        </div>
-
-        {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/contact-us')}>
-          <img src="https://via.placeholder.com/150" alt="Contact Us" className="card-image" />
-          <div className="card-content">
-            <h3>Contact Us</h3>
-          </div>
-        </div>
-
-        {/* Card with image */}
-        <div className="card" onClick={() => handleButtonClick('/order-status')}>
-          <img src="https://via.placeholder.com/150" alt="Order Status" className="card-image" />
-          <div className="card-content">
-            <h3>Order Status</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <UserDashboard user={user} />;
 };
 
 export default Dashboard;

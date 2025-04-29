@@ -3,7 +3,8 @@ import {
     createScrapRequest,
     getAllScrapRequests,
     updateScrapRequestStatus,
-    deleteScrapRequest
+    deleteScrapRequest,
+    getUserRequests
 } from '../controllers/scrapRequest.controller.js';
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.get('/', getAllScrapRequests);
 router.put('/update-status', updateScrapRequestStatus);
 
 router.delete('/:requestId', deleteScrapRequest);
+router.get('/user/:userId', getUserRequests);
 
 export default router;

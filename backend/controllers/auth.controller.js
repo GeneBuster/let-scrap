@@ -14,6 +14,7 @@ if (!JWT_SECRET) {
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone} = req.body;
+    console.log("Request Body: ", req.body);
 
     if (!phone) {
       return res.status(400).json({ message: 'Phone number is required' });
@@ -28,6 +29,7 @@ export const registerUser = async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: "User registered successfully!" });
   } catch (error) {
+    console.error("Error during registration:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -35,17 +37,33 @@ export const registerUser = async (req, res) => {
 // Register Dealer
 export const registerDealer = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
+
+    console.log("Register Dealer Body:", req.body);  // Always log inputs
+
+    if (!name || !email || !password || !phone) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const existingDealer = await Dealer.findOne({ email });
-    if (existingDealer) return res.status(400).json({ message: "Dealer already exists" });
+    if (existingDealer) {
+      return res.status(400).json({ message: "Dealer already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newDealer = new Dealer({ name, email, password: hashedPassword });
+    const newDealer = new Dealer({
+      name,
+      email,
+      password: hashedPassword,
+      phone
+      // address will remain empty unless you fill it later
+    });
 
     await newDealer.save();
+
     res.status(201).json({ message: "Dealer registered successfully!" });
   } catch (error) {
+    console.error("Error during dealer registration:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -54,7 +72,16 @@ export const registerDealer = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    // Try finding User
+    let user = await User.findOne({ email });
+    let role = 'user';
+
+    // If not found in User, try Dealer
+    if (!user) {
+      user = await Dealer.findOne({ email });
+      role = 'dealer';
+    }
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -64,16 +91,24 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, role }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ 
+        message: 'Login successful',
+        token,
+        role,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email
+        }
+     }); // 🔥 Send role too
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 
