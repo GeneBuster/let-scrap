@@ -1,141 +1,125 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const ScrapRequest = () => {
-  const [scrapType, setScrapType] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [pickupAddress, setPickupAddress] = useState('');
-  const [preferredPickupTime, setPreferredPickupTime] = useState('');
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
+const ScrapRequest = ({ userId }) => {
+  const [formData, setFormData] = useState({
+    user: userId,
+    items: [{ itemType: "", weight: "" }],
+    pickupAddress: { street: "", city: "", state: "", zip: "" },
+  });
+
+  const handleAddressChange = (e) => {
+    setFormData({
+      ...formData,
+      pickupAddress: {
+        ...formData.pickupAddress,
+        [e.target.name]: e.target.value,
+      },
+    });
+  };
+
+  const handleItemChange = (e, field) => {
+    setFormData({
+      ...formData,
+      items: [{ ...formData.items[0], [field]: e.target.value }],
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (!scrapType || !quantity || !pickupAddress || !preferredPickupTime) {
-      setError('Please fill in all the fields.');
+    if (
+      !formData.items[0].itemType ||
+      !formData.items[0].weight ||
+      !formData.pickupAddress.street
+    ) {
+      alert("Please fill in all required fields.");
       return;
     }
 
-    const requestData = {
-      scrapType,
-      quantity,
-      pickupAddress,
-      preferredPickupTime,
-    };
-
     try {
-      // Send the pickup request to the backend
-      const response = await axios.post('http://localhost:5000/api/request/pickup-request', requestData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      const response = await axios.post(
+        "http://localhost:5000/api/scrap-requests/create",
+        {
+          ...formData,
+          status: "Pending",
+        }
+      );
+      alert(response.data.message);
+      setFormData({
+        user: userId,
+        items: [{ itemType: "", weight: "" }],
+        pickupAddress: { street: "", city: "", state: "", zip: "" },
       });
-
-      setSuccessMessage('Scrap pickup request submitted successfully!');
-      setError(null); // Clear any previous error messages
-    } catch (err) {
-      console.error('Error submitting pickup request:', err);
-      setError('There was an error submitting your request.');
+    } catch (error) {
+      console.error("Axios error:", error);
+      alert("Failed to create scrap request");
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Request Scrap Pickup</h2>
-      {error && <div style={styles.errorMessage}>{error}</div>}
-      {successMessage && <div style={styles.successMessage}>{successMessage}</div>}
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.formGroup}>
-          <label>Scrap Type</label>
-          <input
-            type="text"
-            value={scrapType}
-            onChange={(e) => setScrapType(e.target.value)}
-            placeholder="e.g., Metal, Plastic, Paper"
-            style={styles.input}
-          />
-        </div>
-
-        <div style={styles.formGroup}>
-          <label>Quantity</label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="Enter quantity"
-            style={styles.input}
-          />
-        </div>
-
-        <div style={styles.formGroup}>
-          <label>Pickup Address</label>
-          <input
-            type="text"
-            value={pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
-            placeholder="Enter pickup address"
-            style={styles.input}
-          />
-        </div>
-
-        <div style={styles.formGroup}>
-          <label>Preferred Pickup Time</label>
-          <input
-            type="datetime-local"
-            value={preferredPickupTime}
-            onChange={(e) => setPreferredPickupTime(e.target.value)}
-            style={styles.input}
-          />
-        </div>
-
-        <button type="submit" style={styles.submitButton}>Submit Request</button>
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-2">Create Scrap Request</h2>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <input
+          type="text"
+          name="itemType"
+          placeholder="Item Type"
+          className="border p-2 w-full"
+          value={formData.items[0].itemType}
+          onChange={(e) => handleItemChange(e, "itemType")}
+          required
+        />
+        <input
+          type="number"
+          name="weight"
+          placeholder="Weight (kg)"
+          className="border p-2 w-full"
+          value={formData.items[0].weight}
+          onChange={(e) => handleItemChange(e, "weight")}
+          required
+        />
+        <input
+          type="text"
+          name="street"
+          placeholder="Street"
+          className="border p-2 w-full"
+          value={formData.pickupAddress.street}
+          onChange={handleAddressChange}
+          required
+        />
+        <input
+          type="text"
+          name="city"
+          placeholder="City"
+          className="border p-2 w-full"
+          value={formData.pickupAddress.city}
+          onChange={handleAddressChange}
+        />
+        <input
+          type="text"
+          name="state"
+          placeholder="State"
+          className="border p-2 w-full"
+          value={formData.pickupAddress.state}
+          onChange={handleAddressChange}
+        />
+        <input
+          type="text"
+          name="zip"
+          placeholder="ZIP Code"
+          className="border p-2 w-full"
+          value={formData.pickupAddress.zip}
+          onChange={handleAddressChange}
+        />
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          Submit Request
+        </button>
       </form>
     </div>
   );
-};
 
-const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '600px',
-    margin: 'auto',
-    fontFamily: 'Arial, sans-serif',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-  },
-  formGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  input: {
-    padding: '10px',
-    marginTop: '5px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  submitButton: {
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginTop: '10px',
-  },
-  errorMessage: {
-    color: '#d9534f',
-    fontSize: '16px',
-    marginBottom: '10px',
-  },
-  successMessage: {
-    color: '#28a745',
-    fontSize: '16px',
-    marginBottom: '10px',
-  },
+
 };
 
 export default ScrapRequest;

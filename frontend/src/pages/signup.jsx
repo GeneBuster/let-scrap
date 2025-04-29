@@ -5,30 +5,38 @@ import axios from "axios";
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState(""); // ✅ Added phone number
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("user"); // Default role is 'user'
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-
+  
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register/user", {
-        name,
-        email,
-        phone, // ✅ Include phone number
-        password,
-      });
-
+      console.log({ name, email, phone, password, role });
+  
+      // Set URL based on role
+      let url = "http://localhost:5000/api/auth/register/user";
+      if (role === "dealer") {
+        url = "http://localhost:5000/api/auth/register/dealer";
+      }
+  
+      // 🔥 Always send phone number (for both user and dealer)
+      const payload = { name, email, phone, password };
+  
+      const response = await axios.post(url, payload);
+      console.log(response.data);
+  
       if (response.status === 201) {
-        navigate("/login"); // Redirect after successful signup
+        navigate("/login");
       } else {
         setError("Signup failed, try again.");
       }
@@ -67,16 +75,16 @@ const Signup = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Phone Number</label>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter your phone number"
-            />
-          </div>
+  <label className="block text-gray-700 font-medium">Phone Number</label>
+  <input
+    type="text"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value)}
+    required
+    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+    placeholder="Enter your phone number"
+  />
+</div>
 
           <div className="mb-4">
             <label className="block text-gray-700 font-medium">Password</label>
@@ -100,6 +108,19 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Confirm your password"
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium">Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="user">User</option>
+              <option value="dealer">Dealer</option>
+              {/* You can hide Admin option for now, as no admin registration is handled yet */}
+            </select>
           </div>
 
           <button

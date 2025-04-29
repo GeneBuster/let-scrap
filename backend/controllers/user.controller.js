@@ -6,11 +6,20 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json(user);
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      createdAt: user.createdAt,
+      role: "user"        // ✅ IMPORTANT: Add role manually
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update User Profile
 export const updateUserProfile = async (req, res) => {
