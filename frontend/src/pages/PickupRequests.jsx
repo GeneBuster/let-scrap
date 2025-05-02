@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const ScrapRequest = ({ userId }) => {
+const ScrapRequest = () => {
+  const userId = localStorage.getItem("userId");
+  console.log("User ID:", userId);  //testing purpose
   const [formData, setFormData] = useState({
     user: userId,
     items: [{ itemType: "", weight: "" }],
@@ -39,10 +41,16 @@ const ScrapRequest = ({ userId }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/scrap-requests/create",
+        "http://localhost:5000/api/scrap-requests/pickup-request",
         {
           ...formData,
+          user: userId,
           status: "Pending",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
         }
       );
       alert(response.data.message);
@@ -52,8 +60,10 @@ const ScrapRequest = ({ userId }) => {
         pickupAddress: { street: "", city: "", state: "", zip: "" },
       });
     } catch (error) {
-      console.error("Axios error:", error);
-      alert("Failed to create scrap request");
+      alert(`Error: ${error?.response?.data?.message || "Unknown error"}`);
+      console.error("Backend error:", error?.response?.data);
+      // console.error("Axios error:", error);
+      // alert("Failed to create scrap request");
     }
   };
 

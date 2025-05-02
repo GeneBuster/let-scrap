@@ -20,10 +20,10 @@ const LoginPage = () => {
 
 
       localStorage.setItem("token", response.data.token);
-localStorage.setItem("userRole", response.data.role);
-localStorage.setItem("userId", response.data.user.id);
-localStorage.setItem("userName", response.data.user.name);
-localStorage.setItem("userEmail", response.data.user.email);
+      localStorage.setItem("userRole", response.data.role);
+      localStorage.setItem("userId", response.data.user.id);
+      localStorage.setItem("userName", response.data.user.name);
+      localStorage.setItem("userEmail", response.data.user.email);
 
 
       navigate('/dashboard'); 

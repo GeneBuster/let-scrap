@@ -137,8 +137,10 @@ const ProfilePage = () => {
               <p style={styles.profileInfoName}>{user.name}</p>
               <p style={styles.profileInfoText}>Email: {user.email}</p>
               <p style={styles.profileInfoText}>Phone: {user.phone || 'N/A'}</p>
-              <p style={styles.profileInfoText}>Address: {user.address || 'N/A'}</p>
-              <button onClick={handleEditClick} style={styles.editButton}>
+              <p style={styles.profileInfoText}>
+                Address: {typeof user.address === 'string' ? user.address : 'N/A'}
+              </p>
+             <button onClick={handleEditClick} style={styles.editButton}>
                 Update Information
               </button>
             </>
