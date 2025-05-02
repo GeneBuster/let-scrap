@@ -33,9 +33,11 @@ export const updateUserProfile = async (req, res) => {
     if (phone) user.phone = phone;
     if (address) user.address = address;
 
-    await user.save();
-    res.status(200).json({ message: "Profile updated successfully", user });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    console.error("Error updating user:", err);
+    res.status(500).json({ message: "Server error" });
   }
+  
 };  
