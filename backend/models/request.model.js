@@ -30,6 +30,14 @@ const scrapRequestSchema = new mongoose.Schema(
       ref: "Dealer",
       default: null,
     },
+    timeSlot: {
+    type: String,
+    default: null,
+  },
+  pickupDate: {
+  type: String,
+  default: null,
+},
   },
   { timestamps: true }
 );
