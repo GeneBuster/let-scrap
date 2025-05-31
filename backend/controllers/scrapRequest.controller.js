@@ -1,5 +1,7 @@
 import ScrapRequest from '../models/request.model.js'
 import User from '../models/user.model.js'
+import { sendEmail } from '../utils/emailSender.js';
+
 
 export const createScrapRequest = async (req, res) => {
     console.log("✅ createScrapRequest hit with body:", req.body); // Add this
@@ -50,20 +52,28 @@ export const getAllScrapRequests = async (req, res) => {
 
 export const updateScrapRequestStatus = async (req, res) => {
     try {
-        const { requestId, status, dealerId } = req.body;
+        const { requestId, status, dealerId, timeSlot, pickupDate} = req.body;
 
-        // Find and update the scrap request with the provided dealerId and status
         const updatedRequest = await ScrapRequest.findByIdAndUpdate(
             requestId,
             {
-                status, 
-                dealer: dealerId || null // Associate the dealerId with the request
+                status,
+                dealer: dealerId || null,
+                timeSlot: timeSlot || null,
+                 pickupDate: pickupDate || null,
             },
             { new: true }
-        ).populate('user').populate('dealer'); // Populate user and dealer fields
+        ).populate('user').populate('dealer');
 
         if (!updatedRequest) {
             return res.status(404).json({ message: 'Scrap request not found' });
+        }
+
+        // Placeholder for sending email or SMS to user
+        const userEmail = updatedRequest.user.email;
+        if (status === 'Accepted' && userEmail && timeSlot) {
+            console.log(`📧 Send email to ${userEmail} -> Your scrap pickup is scheduled for: ${timeSlot}`);
+            // sendEmail(userEmail, `Your scrap pickup has been accepted for the slot: ${timeSlot}`);
         }
 
         res.status(200).json({
@@ -78,6 +88,7 @@ export const updateScrapRequestStatus = async (req, res) => {
         });
     }
 };
+
 
 export const deleteScrapRequest = async (req, res) => {
     try {
