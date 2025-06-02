@@ -22,7 +22,7 @@ const scrapRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Accepted", "Rejected", "Completed"],
+      enum: ["Pending", "Accepted", "Rejected", "Completed", "Picked Up"],
       default: "Pending",
     },
     dealer: {

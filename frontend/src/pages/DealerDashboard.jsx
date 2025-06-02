@@ -24,7 +24,7 @@ const DealerDashboard = () => {
       dates.push(date.toISOString().split("T")[0]);
     }
     return dates;
-  };
+  };  
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -56,7 +56,7 @@ const DealerDashboard = () => {
       await axios.put(`http://localhost:5000/api/scrap-requests/update-status`, {
         requestId: id,
         status: "Accepted",
-        dealerId,
+        dealerId: dealerId,
         timeSlot: `${date} | ${slot}`,
       });
       fetchRequests();
@@ -97,20 +97,43 @@ const DealerDashboard = () => {
   };
 
   const pendingRequests = requests.filter((req) => req.status === "Pending");
-  const acceptedRequests = requests
-    .filter(
-      (req) =>
-        req.status === "Accepted" &&
-        (typeof req.dealerId === "string"
-          ? req.dealerId === dealerId
-          : req.dealerId?._id === dealerId)
-    )
-    .sort((a, b) => {
-      const dateA = parseDateTime(a.timeSlot);
-      const dateB = parseDateTime(b.timeSlot);
-      return dateA - dateB;
-    });
 
+
+const acceptedRequests = requests
+  .filter((req) => {
+    const isAccepted = req.status === "Accepted";
+    const dealerMatch =
+      req.dealer === dealerId ||
+      req.dealer?._id === dealerId ||
+      req.dealer?.toString() === dealerId;
+
+    return isAccepted && dealerMatch;
+  })
+  .sort((a, b) => {
+    const dateA = parseDateTime(a.timeSlot);
+    const dateB = parseDateTime(b.timeSlot);
+    return dateA - dateB;
+  });
+
+
+    const handlePickedUp = async (requestId) => {
+      try {
+        await axios.put(
+          `http://localhost:5000/api/scrap-requests/mark-picked-up/${requestId}`,
+        {}, 
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+        );
+        fetchRequests(); // Refresh the list
+      } catch (err) {
+        console.error("Failed to mark as picked up", err);
+        alert("Failed to mark as picked up. Try again.");
+      }
+    };
+  
   return (
     <div className="p-4 max-w-4xl mx-auto">
       {/* Header */}
@@ -252,25 +275,22 @@ const DealerDashboard = () => {
           ) : (
             <ul className="space-y-4">
               {acceptedRequests.map((request) => (
-                <li
-                  key={request._id}
-                  className="p-4 border rounded shadow bg-green-50"
-                >
-                  <p>
-                    <strong>Item:</strong> {request.items?.[0]?.itemType}
-                  </p>
-                  <p>
-                    <strong>Weight:</strong> {request.items?.[0]?.weight} kg
-                  </p>
-                  <p>
-                    <strong>Address:</strong>{" "}
-                    {`${request.pickupAddress?.street}, ${request.pickupAddress?.city}, ${request.pickupAddress?.state}, ${request.pickupAddress?.zip}`}
-                  </p>
-                  <p>
-                    <strong>Scheduled Slot:</strong> {request.timeSlot}
-                  </p>
+                <li key={request._id} className="p-4 border rounded shadow bg-green-50">
+                  <p><strong>Item:</strong> {request.items?.[0]?.itemType}</p>
+                  <p><strong>Weight:</strong> {request.items?.[0]?.weight} kg</p>
+                  <p><strong>Address:</strong> {`${request.pickupAddress?.street}, ${request.pickupAddress?.city}, ${request.pickupAddress?.state}, ${request.pickupAddress?.zip}`}</p>
+                  <p><strong>Scheduled Slot:</strong> {request.timeSlot}</p>
+                            
+                  {/* Add this button */}
+                  <button
+                    onClick={() => handlePickedUp(request._id)}
+                    className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                  >
+                    Mark as Picked Up
+                  </button>
                 </li>
               ))}
+
             </ul>
           )}
         </>

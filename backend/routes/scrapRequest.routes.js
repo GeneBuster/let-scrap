@@ -4,7 +4,9 @@ import {
     getAllScrapRequests,
     updateScrapRequestStatus,
     deleteScrapRequest,
-    getUserRequests
+    getUserRequests,
+    getAcceptedRequestsForDealer,
+    markRequestAsPickedUp
 } from '../controllers/scrapRequest.controller.js';
 import {authMiddleware} from '../utils/auth.middleware.js'
 
@@ -19,5 +21,11 @@ router.put('/update-status', updateScrapRequestStatus);
 
 router.delete('/:requestId', deleteScrapRequest);
 router.get('/user/:userId', getUserRequests);
+
+
+
+router.get('/accepted', authMiddleware, getAcceptedRequestsForDealer);
+
+router.put('/mark-picked-up/:id', authMiddleware, markRequestAsPickedUp);
 
 export default router;
