@@ -52,15 +52,16 @@ export const getAllScrapRequests = async (req, res) => {
 
 export const updateScrapRequestStatus = async (req, res) => {
     try {
+        console.log("Received body:", req.body);
         const { requestId, status, dealerId, timeSlot, pickupDate} = req.body;
 
         const updatedRequest = await ScrapRequest.findByIdAndUpdate(
             requestId,
             {
                 status,
-                dealer: dealerId || null,
+                dealer: dealerId,
                 timeSlot: timeSlot || null,
-                 pickupDate: pickupDate || null,
+                pickupDate: pickupDate || null,
             },
             { new: true }
         ).populate('user').populate('dealer');
@@ -120,3 +121,37 @@ export const getUserRequests = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch user requests', error: error.message });
     }
 };
+
+export const getAcceptedRequestsForDealer = async (req, res) => {
+    try {
+      const dealerId = req.user.id;
+      const requests = await ScrapRequest.find({ 
+        dealer: dealerId, 
+        status: 'Accepted' 
+      });
+  
+      res.status(200).json(requests);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const markRequestAsPickedUp = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const request = await ScrapRequest.findById(id);
+  
+      if (!request) {
+        return res.status(404).json({ message: 'Request not found' });
+      }
+  
+      request.status = 'Picked Up';
+      await request.save();
+  
+      res.status(200).json({ message: 'Marked as picked up', request });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+};
+  
+  

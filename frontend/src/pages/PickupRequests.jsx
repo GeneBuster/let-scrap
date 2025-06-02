@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const ScrapRequest = () => {
   const userId = localStorage.getItem("userId");
-  console.log("User ID:", userId);  //testing purpose
+  // console.log("User ID:", userId);  //testing purpose
   const [formData, setFormData] = useState({
     user: userId,
     items: [{ itemType: "", weight: "" }],

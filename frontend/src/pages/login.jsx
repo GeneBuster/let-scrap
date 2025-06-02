@@ -9,29 +9,37 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email: email,
-        password: password,
-      });
-      console.log("Login response:", response.data);
+  try {
+    const response = await axios.post('http://localhost:5000/api/auth/login', {
+      email: email,
+      password: password,
+    });
 
+    // console.log("Login response:", response.data);
 
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userRole", response.data.role);
-      localStorage.setItem("userId", response.data.user.id);
-      localStorage.setItem("userName", response.data.user.name);
-      localStorage.setItem("userEmail", response.data.user.email);
+    const { token, role, user } = response.data;
 
+    localStorage.setItem("token", token);
+    localStorage.setItem("userRole", role);
+    localStorage.setItem("userId", user.id);         // ✅ fixed
+    localStorage.setItem("userName", user.name);
+    localStorage.setItem("userEmail", user.email);
 
-      navigate('/dashboard'); 
-
-    } catch (err) {
-      setError('Invalid credentials, please try again.');
+    if (role === "dealer") {
+      localStorage.setItem("dealerId", user.id);     // ✅ fixed
+      console.log("Dealer logged in:", user.name);
+      navigate('/dealer-dashboard');                 // optional: dealer route
+    } else {
+      navigate('/dashboard');
     }
-  };
+
+  } catch (err) {
+    setError('Invalid credentials, please try again.');
+  }
+};
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-400">
