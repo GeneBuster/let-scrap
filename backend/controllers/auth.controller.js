@@ -1,5 +1,4 @@
-import User from "../models/user.model.js";
-import Dealer from "../models/dealer.model.js";
+import User from "../models/user.model.js"; // The only model you need now
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -10,77 +9,46 @@ if (!JWT_SECRET) {
   throw new Error("Missing JWT_SECRET in .env file");
 }
 
-// Register User
-export const registerUser = async (req, res) => {
+// A single, unified register function
+export const register = async (req, res) => {
   try {
-    const { name, email, password, phone} = req.body;
-    console.log("Request Body: ", req.body);
+    // 'role' is now expected from the request body (e.g., from a dropdown on the signup form)
+    const { name, email, password, phone, role } = req.body;
 
-    if (!phone) {
-      return res.status(400).json({ message: 'Phone number is required' });
+    if (!name || !email || !password || !phone) {
+        return res.status(400).json({ message: 'Name, email, password, and phone are required' });
     }
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (existingUser) {
+      return res.status(400).json({ message: "An account with this email already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword, phone});
+    
+    const newUser = new User({
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        role // The role is saved directly during creation
+    });
 
     await newUser.save();
     res.status(201).json({ message: "User registered successfully!" });
+
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Register Dealer
-export const registerDealer = async (req, res) => {
-  try {
-    const { name, email, password, phone } = req.body;
-
-    console.log("Register Dealer Body:", req.body);  // Always log inputs
-
-    if (!name || !email || !password || !phone) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const existingDealer = await Dealer.findOne({ email });
-    if (existingDealer) {
-      return res.status(400).json({ message: "Dealer already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newDealer = new Dealer({
-      name,
-      email,
-      password: hashedPassword,
-      phone
-      // address will remain empty unless you fill it later
-    });
-
-    await newDealer.save();
-
-    res.status(201).json({ message: "Dealer registered successfully!" });
-  } catch (error) {
-    console.error("Error during dealer registration:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Login (Detects if email exists in User or Dealer collection)
+// A simplified and more secure login function
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Try finding User
-    let user = await User.findOne({ email });
-    let role = 'user';
-
-    // If not found in User, try Dealer
-    if (!user) {
-      user = await Dealer.findOne({ email });
-      role = 'dealer';
-    }
+    // Find the user and explicitly ask for the password, which is hidden by default
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -91,25 +59,22 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id, role }, process.env.JWT_SECRET, {
+    // The user's role is retrieved directly from the user document
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
         message: 'Login successful',
         token,
-        role,
+        role: user.role, // Send the role from the user object
         user: {
           id: user._id,
           name: user.name,
           email: user.email
         }
-     }); // 🔥 Send role too
+     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
-

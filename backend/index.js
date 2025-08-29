@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import dealerRoutes from "./routes/dealer.routes.js";
 import billRoutes from './routes/bill.routes.js';
+// 1. Import the new admin routes file (we will create this next).
+import adminRoutes from './routes/admin.routes.js';
 import cors from 'cors';
 
 
@@ -22,12 +24,15 @@ app.use(express.json());
 
 connectDB();
 
-// Define API routes
+// --- Define API routes ---
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dealers", dealerRoutes);
 app.use("/api/scrap-requests", scrapRequestRoutes);
 app.use('/api/bills', billRoutes);
+// 2. Add the new route for the admin panel.
+app.use('/api/admin', adminRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("API is running...");

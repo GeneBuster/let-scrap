@@ -1,60 +1,45 @@
-import ScrapRequest from '../models/request.model.js'
-import User from '../models/user.model.js'
+import ScrapRequest from '../models/request.model.js';
+import User from '../models/user.model.js';
 import { sendEmail } from '../utils/emailSender.js';
 
-
+// No changes needed in existing functions
 export const createScrapRequest = async (req, res) => {
-    console.log("✅ createScrapRequest hit with body:", req.body); // Add this
     try {
-
         const { user, items, pickupAddress } = req.body;
-
         const newRequest = new ScrapRequest({
             user,
             items,
             pickupAddress,
             status: 'Pending'
         });
-
         await newRequest.save();
-
         res.status(201).json({
             message: 'Scrap request created successfully',
             request: newRequest
         });
     } catch (error) {
-        console.error("❌ Error creating request:", error.message);
         res.status(500).json({
             message: 'Failed to create scrap request',
             error: error.message
         });
-
     }
-  };
-
-
+};
 export const getAllScrapRequests = async (req, res) => {
     try {
-        const requests = await ScrapRequest.find()
-            .populate('user') 
-            .populate('dealer');
+        const requests = await ScrapRequest.find({})
+            .populate('user', 'name email')
+            .populate('dealer', 'name email');
         res.status(200).json(requests);
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             message: 'Failed to fetch scrap requests',
             error: error.message
         });
     }
 };
-
-
-
 export const updateScrapRequestStatus = async (req, res) => {
     try {
-        console.log("Received body:", req.body);
-        const { requestId, status, dealerId, timeSlot, pickupDate} = req.body;
-
+        const { requestId, status, dealerId, timeSlot, pickupDate } = req.body;
         const updatedRequest = await ScrapRequest.findByIdAndUpdate(
             requestId,
             {
@@ -69,43 +54,28 @@ export const updateScrapRequestStatus = async (req, res) => {
         if (!updatedRequest) {
             return res.status(404).json({ message: 'Scrap request not found' });
         }
-
-        // Placeholder for sending email or SMS to user
-        const userEmail = updatedRequest.user.email;
-        if (status === 'Accepted' && userEmail && timeSlot) {
-            console.log(`📧 Send email to ${userEmail} -> Your scrap pickup is scheduled for: ${timeSlot}`);
-            // sendEmail(userEmail, `Your scrap pickup has been accepted for the slot: ${timeSlot}`);
-        }
-
         res.status(200).json({
             message: 'Scrap request updated successfully',
             request: updatedRequest
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             message: 'Failed to update scrap request',
             error: error.message
         });
     }
 };
-
-
 export const deleteScrapRequest = async (req, res) => {
     try {
         const { requestId } = req.params;
-
         const deletedRequest = await ScrapRequest.findByIdAndDelete(requestId);
-
         if (!deletedRequest) {
             return res.status(404).json({ message: 'Scrap request not found' });
         }
-
         res.status(200).json({
             message: 'Scrap request deleted successfully'
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             message: 'Failed to delete scrap request',
             error: error.message
@@ -121,37 +91,110 @@ export const getUserRequests = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch user requests', error: error.message });
     }
 };
-
 export const getAcceptedRequestsForDealer = async (req, res) => {
     try {
-      const dealerId = req.user.id;
-      const requests = await ScrapRequest.find({ 
-        dealer: dealerId, 
-        status: 'Accepted' 
-      });
-  
-      res.status(200).json(requests);
+        const dealerId = req.user.id;
+        const requests = await ScrapRequest.find({
+            dealer: dealerId,
+            status: 'Accepted'
+        });
+        res.status(200).json(requests);
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+export const markRequestAsPickedUp = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const request = await ScrapRequest.findById(id);
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+        request.status = 'Picked Up';
+        await request.save();
+        res.status(200).json({ message: 'Marked as picked up', request });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+export const completeScrapRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { earnings } = req.body; // Expecting earnings from the request body
+
+        if (earnings === undefined || earnings < 0) {
+            return res.status(400).json({ message: 'A valid earnings amount is required.' });
+        }
+
+        const request = await ScrapRequest.findById(id);
+
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        // Update the status and earnings
+        request.status = 'Completed';
+        request.earnings = earnings;
+        await request.save();
+
+        res.status(200).json({ message: 'Request completed successfully', request });
+    } catch (error) {
+        console.error("Error completing request:", error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
-export const markRequestAsPickedUp = async (req, res) => {
+
+// New function to handle review submission
+export const submitReview = async (req, res) => {
     try {
-      const { id } = req.params;
-      const request = await ScrapRequest.findById(id);
-  
-      if (!request) {
-        return res.status(404).json({ message: 'Request not found' });
-      }
-  
-      request.status = 'Picked Up';
-      await request.save();
-  
-      res.status(200).json({ message: 'Marked as picked up', request });
+        const { rating, review } = req.body;
+        const { id } = req.params; // The ID of the scrap request
+        const userId = req.user.userId;
+
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ message: 'A valid rating between 1 and 5 is required.' });
+        }
+
+        const request = await ScrapRequest.findById(id);
+
+        if (!request) {
+            return res.status(404).json({ message: 'Scrap request not found.' });
+        }
+
+        // Security check: Ensure the user leaving the review is the one who created the request.
+        if (request.user.toString() !== userId) {
+            return res.status(403).json({ message: 'Forbidden: You can only review your own requests.' });
+        }
+
+        // State check: Ensure the request has been completed before it can be reviewed.
+        if (request.status !== 'Completed') {
+            return res.status(400).json({ message: 'You can only review a completed request.' });
+        }
+        
+        // Prevent duplicate reviews
+        if (request.rating) {
+            return res.status(400).json({ message: 'This request has already been reviewed.' });
+        }
+
+        // Update the request with the review details.
+        request.rating = rating;
+        request.review = review;
+        await request.save();
+
+        // Now, update the dealer's average rating.
+        const dealer = await User.findById(request.dealer);
+        if (dealer) {
+            const totalRating = (dealer.averageRating * dealer.ratingCount) + rating;
+            dealer.ratingCount += 1;
+            dealer.averageRating = totalRating / dealer.ratingCount;
+            await dealer.save();
+        }
+
+        res.status(200).json({ message: 'Review submitted successfully!' });
+
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+        console.error("Error submitting review:", error);
+        res.status(500).json({ message: 'Server error while submitting review.' });
     }
 };
-  
-  
