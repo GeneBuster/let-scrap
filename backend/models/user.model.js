@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -9,15 +10,24 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        lowercase: true
+        lowercase: true,
+        // Optional but recommended: add a regex for basic email format validation
+        match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false // Hide password by default
+    },
+    role: {
+        type: String,
+        enum: ['user', 'dealer', 'admin'],
+        default: 'user'
     },
     phone: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true // Allow multiple users to have no phone number
     },
     address: {
         street: String,
@@ -25,13 +35,11 @@ const UserSchema = new mongoose.Schema({
         state: String,
         zip: String,
         country: String
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
+}, {
+    timestamps: true // Automatically adds createdAt and updatedAt
 });
 
 const User = mongoose.model('User', UserSchema);
 
-export default User
+export default User;

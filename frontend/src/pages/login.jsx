@@ -9,37 +9,40 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
-      email: email,
-      password: password,
-    });
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: email,
+        password: password,
+      });
 
-    // console.log("Login response:", response.data);
+      const { token, role, user } = response.data;
 
-    const { token, role, user } = response.data;
+      // Store user data in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userName", user.name);
+      localStorage.setItem("userEmail", user.email);
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("userRole", role);
-    localStorage.setItem("userId", user.id);         // ✅ fixed
-    localStorage.setItem("userName", user.name);
-    localStorage.setItem("userEmail", user.email);
+      // --- Updated Role-Based Redirection Logic ---
+      if (role === "admin") {
+        // If the user is an admin, navigate to the admin dashboard.
+        navigate('/admin/dashboard');
+      } else if (role === "dealer") {
+        // If the user is a dealer, navigate to the dealer dashboard.
+        localStorage.setItem("dealerId", user.id);
+        navigate('/dealer-dashboard');
+      } else {
+        // Otherwise, assume the user is a regular user.
+        navigate('/user-dashboard');
+      }
 
-    if (role === "dealer") {
-      localStorage.setItem("dealerId", user.id);     // ✅ fixed
-      console.log("Dealer logged in:", user.name);
-      navigate('/dealer-dashboard');                 // optional: dealer route
-    } else {
-      navigate('/dashboard');
+    } catch (err) {
+      setError('Invalid credentials, please try again.');
     }
-
-  } catch (err) {
-    setError('Invalid credentials, please try again.');
-  }
-};
-
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-400">
@@ -77,7 +80,6 @@ const LoginPage = () => {
         </form>
         {error && <div className="mt-4 text-center text-red-600">{error}</div>}
 
-        {/* Signup Option */}
         <div className="mt-4 text-center">
           <p className="text-gray-700">Don't have an account?</p>
           <Link to="/signup" className="text-blue-600 hover:underline font-semibold">
