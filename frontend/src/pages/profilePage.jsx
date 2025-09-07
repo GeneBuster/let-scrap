@@ -20,7 +20,7 @@ const ProfilePage = () => {
     if (token) {
       // If the token exists, make an API call to fetch the user's full profile
       axios
-        .get('http://localhost:5000/api/users/profile', {
+        .get('https://let-scrap.vercel.app/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -60,7 +60,7 @@ const ProfilePage = () => {
     try {
       // Send PUT request to update user profile
       const response = await axios.put(
-        'http://localhost:5000/api/users/profile',
+        'https://let-scrap.vercel.app/api/users/profile',
         updatedUserInfo,
         {
           headers: { Authorization: `Bearer ${token}` },

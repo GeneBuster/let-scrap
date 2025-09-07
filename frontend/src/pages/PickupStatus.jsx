@@ -8,7 +8,7 @@ const PickupStatus = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/scrap-requests/user/${userId}`);
+        const res = await axios.get(`https://let-scrap.vercel.app/api/scrap-requests/user/${userId}`);
         setRequests(res.data);
       } catch (err) {
         console.error("Error fetching pickup status", err);

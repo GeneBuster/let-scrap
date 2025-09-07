@@ -36,8 +36,8 @@ const DealerDashboard = () => {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
       const [requestsResponse, statsResponse] = await Promise.all([
-        axios.get("http://localhost:5000/api/scrap-requests", { headers }),
-        axios.get("http://localhost:5000/api/dealers/stats", { headers })
+        axios.get("https://let-scrap.vercel.app/api/scrap-requests", { headers }),
+        axios.get("https://let-scrap.vercel.app/api/dealers/stats", { headers })
       ]);
       setRequests(requestsResponse.data);
       setStats(statsResponse.data);
@@ -64,7 +64,7 @@ const DealerDashboard = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/scrap-requests/update-status`, {
+      await axios.put(`https://let-scrap.vercel.app/api/scrap-requests/update-status`, {
         requestId: id,
         status: "Accepted",
         dealerId: dealerId,
@@ -80,7 +80,7 @@ const DealerDashboard = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/scrap-requests/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`https://let-scrap.vercel.app/api/scrap-requests/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       await fetchAllData();
     } catch (error) {
       console.error("Error deleting request:", error);
@@ -92,7 +92,7 @@ const DealerDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/scrap-requests/mark-picked-up/${requestId}`,
+        `https://let-scrap.vercel.app/api/scrap-requests/mark-picked-up/${requestId}`,
         {}, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -117,7 +117,7 @@ const DealerDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/scrap-requests/complete/${currentRequest._id}`,
+        `https://let-scrap.vercel.app/api/scrap-requests/complete/${currentRequest._id}`,
         { earnings: parseFloat(earnings) },
         { headers: { Authorization: `Bearer ${token}` } }
       );

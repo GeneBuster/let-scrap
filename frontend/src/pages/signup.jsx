@@ -22,7 +22,7 @@ const Signup = () => {
 
     try {
       // The URL is now constant, pointing to your single registration endpoint.
-      const url = "http://localhost:5000/api/auth/register";
+      const url = "https://let-scrap.vercel.app/api/auth/register";
 
       // The 'role' from the state is now included in the payload.
       // This tells the backend what kind of user to create.

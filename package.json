@@ -1,20 +1,16 @@
 {
-
+  "name": "let-scrap",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\""
+  },
   "dependencies": {
-
+    "concurrently": "^9.2.1",
     "express": "^4.21.2",
-
     "framer-motion": "^12.15.0",
-
     "lucide-react": "^0.511.0",
-
     "node": "^23.9.0",
-
     "nodemailer": "^7.0.3",
-
     "nodemon": "^3.1.9"
-
   }
-
 }
-
