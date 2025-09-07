@@ -13,8 +13,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    // UPDATED: Added the production frontend URL to the list of allowed origins.
-    origin: ['http://localhost:3000', 'https://let-scrap-frontend.vercel.app'],
+    // UPDATED: Corrected the origin with your real frontend URL.
+    origin: ['http://localhost:3000', 'https://let-scrap-5z4c.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
