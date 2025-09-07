@@ -39,7 +39,6 @@ app.get("/", (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// The app.listen() block has been removed, and the app is now exported.
+// This is the required change for Vercel.
+export default app;

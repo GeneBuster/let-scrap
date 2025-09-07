@@ -11,13 +11,12 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        // Optional but recommended: add a regex for basic email format validation
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     password: {
         type: String,
         required: true,
-        select: false // Hide password by default
+        select: false
     },
     role: {
         type: String,
@@ -27,7 +26,7 @@ const UserSchema = new mongoose.Schema({
     phone: {
         type: String,
         unique: true,
-        sparse: true // Allow multiple users to have no phone number
+        sparse: true
     },
     address: {
         street: String,
@@ -35,9 +34,19 @@ const UserSchema = new mongoose.Schema({
         state: String,
         zip: String,
         country: String
+    },
+    // --- ADDED FOR RATINGS ---
+    // These fields will only be used when the role is 'dealer'.
+    averageRating: {
+        type: Number,
+        default: 0
+    },
+    ratingCount: {
+        type: Number,
+        default: 0
     }
 }, {
-    timestamps: true // Automatically adds createdAt and updatedAt
+    timestamps: true
 });
 
 const User = mongoose.model('User', UserSchema);

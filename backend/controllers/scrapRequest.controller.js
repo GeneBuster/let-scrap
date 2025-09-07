@@ -93,7 +93,7 @@ export const getUserRequests = async (req, res) => {
 };
 export const getAcceptedRequestsForDealer = async (req, res) => {
     try {
-        const dealerId = req.user.id;
+        const dealerId = req.user.userId; // Corrected from req.user.id
         const requests = await ScrapRequest.find({
             dealer: dealerId,
             status: 'Accepted'
@@ -120,7 +120,7 @@ export const markRequestAsPickedUp = async (req, res) => {
 export const completeScrapRequest = async (req, res) => {
     try {
         const { id } = req.params;
-        const { earnings } = req.body; // Expecting earnings from the request body
+        const { earnings } = req.body; 
 
         if (earnings === undefined || earnings < 0) {
             return res.status(400).json({ message: 'A valid earnings amount is required.' });
@@ -132,7 +132,6 @@ export const completeScrapRequest = async (req, res) => {
             return res.status(404).json({ message: 'Request not found' });
         }
 
-        // Update the status and earnings
         request.status = 'Completed';
         request.earnings = earnings;
         await request.save();
@@ -145,49 +144,49 @@ export const completeScrapRequest = async (req, res) => {
 };
 
 
-// New function to handle review submission
+// Updated function to handle review submission
 export const submitReview = async (req, res) => {
     try {
         const { rating, review } = req.body;
-        const { id } = req.params; // The ID of the scrap request
+        const { id } = req.params; 
         const userId = req.user.userId;
 
         if (!rating || rating < 1 || rating > 5) {
             return res.status(400).json({ message: 'A valid rating between 1 and 5 is required.' });
         }
 
-        const request = await ScrapRequest.findById(id);
+        // FIX: Use .populate('dealer') to fetch the request and the full dealer document together.
+        const request = await ScrapRequest.findById(id).populate('dealer');
 
         if (!request) {
             return res.status(404).json({ message: 'Scrap request not found.' });
         }
 
-        // Security check: Ensure the user leaving the review is the one who created the request.
         if (request.user.toString() !== userId) {
             return res.status(403).json({ message: 'Forbidden: You can only review your own requests.' });
         }
 
-        // State check: Ensure the request has been completed before it can be reviewed.
         if (request.status !== 'Completed') {
             return res.status(400).json({ message: 'You can only review a completed request.' });
         }
         
-        // Prevent duplicate reviews
         if (request.rating) {
             return res.status(400).json({ message: 'This request has already been reviewed.' });
         }
 
-        // Update the request with the review details.
         request.rating = rating;
         request.review = review;
         await request.save();
-
-        // Now, update the dealer's average rating.
-        const dealer = await User.findById(request.dealer);
-        if (dealer) {
-            const totalRating = (dealer.averageRating * dealer.ratingCount) + rating;
-            dealer.ratingCount += 1;
-            dealer.averageRating = totalRating / dealer.ratingCount;
+        
+        // The dealer document is now available directly on request.dealer
+        if (request.dealer) {
+            const dealer = request.dealer;
+            const currentRatingTotal = (dealer.averageRating || 0) * (dealer.ratingCount || 0);
+            const newRatingCount = (dealer.ratingCount || 0) + 1;
+            
+            dealer.ratingCount = newRatingCount;
+            dealer.averageRating = (currentRatingTotal + rating) / newRatingCount;
+            
             await dealer.save();
         }
 
@@ -198,3 +197,4 @@ export const submitReview = async (req, res) => {
         res.status(500).json({ message: 'Server error while submitting review.' });
     }
 };
+
