@@ -17,7 +17,7 @@ const History = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `http://localhost:5000/api/scrap-requests/user/${userId}`,
+        `https://let-scrap.vercel.app/api/scrap-requests/user/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setHistory(response.data);
@@ -58,7 +58,7 @@ const History = () => {
     try {
         const token = localStorage.getItem('token');
         await axios.post(
-            `http://localhost:5000/api/scrap-requests/${reviewingOrder._id}/review`,
+            `https://let-scrap.vercel.app/api/scrap-requests/${reviewingOrder._id}/review`,
             { rating, review: reviewText },
             { headers: { Authorization: `Bearer ${token}` } }
         );

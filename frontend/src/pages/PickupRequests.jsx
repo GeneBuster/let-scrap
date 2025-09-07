@@ -41,7 +41,7 @@ const ScrapRequest = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/scrap-requests/pickup-request",
+        "https://let-scrap.vercel.app/api/scrap-requests/pickup-request",
         {
           ...formData,
           user: userId,

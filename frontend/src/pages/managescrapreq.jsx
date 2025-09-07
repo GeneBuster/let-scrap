@@ -8,7 +8,7 @@ const ManageScrapRequests = ({ userId }) => {
     useEffect(() => {
         const fetchRequests = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/scrap-requests/");
+                const response = await axios.get("https://let-scrap.vercel.app/api/scrap-requests/");
                 setRequests(response.data.filter(request => request.user === userId));
             } catch (error) {
                 console.error("Error fetching scrap requests:", error);
@@ -20,7 +20,7 @@ const ManageScrapRequests = ({ userId }) => {
     // Delete request
     const handleDelete = async (requestId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/scrap-requests/:requestId`);
+            await axios.delete(`https://let-scrap.vercel.app/api/scrap-requests/:requestId`);
             setRequests(requests.filter(request => request._id !== requestId));
         } catch (error) {
             console.error("Error deleting scrap request:", error);
@@ -30,7 +30,7 @@ const ManageScrapRequests = ({ userId }) => {
     // Update request status
     const handleUpdate = async (requestId, newStatus) => {
         try {
-            const response = await axios.put("http://localhost:5000/api/scrap-requests/update-status", {
+            const response = await axios.put("https://let-scrap.vercel.app/api/scrap-requests/update-status", {
                 requestId,
                 status: newStatus
             });
