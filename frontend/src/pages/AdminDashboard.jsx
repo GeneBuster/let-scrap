@@ -17,7 +17,7 @@ const AdminDashboard = () => {
           setLoading(false);
           return;
         }
-        const response = await axios.get('https://let-scrap.vercel.app/api/admin/users', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

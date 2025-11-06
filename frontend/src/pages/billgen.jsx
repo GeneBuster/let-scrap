@@ -43,7 +43,7 @@ const BillGen = () => {
     setMessage(null);
 
     try {
-      const response = await axios.post("https://let-scrap.vercel.app/api/bills/generate", {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/bills/generate`, {
         userId,
         items,
       });

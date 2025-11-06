@@ -12,34 +12,51 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://let-scrap.vercel.app/api/auth/login', {
-        email: email,
-        password: password,
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        email,
+        password,
       });
 
       const { token, role, user } = response.data;
 
-      // Store user data in localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("userId", user.id);
-      localStorage.setItem("userName", user.name);
-      localStorage.setItem("userEmail", user.email);
+      // ✅ Store everything in one unified object for socket + API access
+      localStorage.setItem(
+        'userInfo',
+        JSON.stringify({
+          token,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role,
+        })
+      );
 
-      // --- Updated Role-Based Redirection Logic ---
-      if (role === "admin") {
-        // If the user is an admin, navigate to the admin dashboard.
+      // --- Optional: Backward compatibility for older pages (you can remove later)
+      const userInfo = {
+        token,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role,
+      };
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+
+      // ✅ Role-based redirection
+      if (role === 'admin') {
         navigate('/admin/dashboard');
-      } else if (role === "dealer") {
-        // If the user is a dealer, navigate to the dealer dashboard.
-        localStorage.setItem("dealerId", user.id);
+      } else if (role === 'dealer') {
+        localStorage.setItem('dealerId', user.id);
         navigate('/dealer-dashboard');
       } else {
-        // Otherwise, assume the user is a regular user.
         navigate('/user-dashboard');
       }
 
+      // ✅ Dispatch event for socket auto-connect in all tabs
+      window.dispatchEvent(new Event('authChange'));
+
     } catch (err) {
+      console.error('Login error:', err);
       setError('Invalid credentials, please try again.');
     }
   };
@@ -78,11 +95,15 @@ const LoginPage = () => {
             Login
           </button>
         </form>
+
         {error && <div className="mt-4 text-center text-red-600">{error}</div>}
 
         <div className="mt-4 text-center">
           <p className="text-gray-700">Don't have an account?</p>
-          <Link to="/signup" className="text-blue-600 hover:underline font-semibold">
+          <Link
+            to="/signup"
+            className="text-blue-600 hover:underline font-semibold"
+          >
             Sign Up Here
           </Link>
         </div>

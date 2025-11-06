@@ -9,7 +9,7 @@ const HomePage = () => {
 
     if (token) {
       axios
-        .get('https://let-scrap.vercel.app/api/auth/dashboard', {  
+        .get(`${process.env.REACT_APP_API_URL}/api/auth/dashboard`, {  
           headers: { Authorization: `Bearer ${token}` },  
         })
         .then((response) => {
