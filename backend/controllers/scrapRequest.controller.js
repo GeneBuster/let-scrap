@@ -82,15 +82,23 @@ export const deleteScrapRequest = async (req, res) => {
         });
     }
 };
+// ✅ Get logged-in user's requests directly from the JWT
 export const getUserRequests = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const requests = await ScrapRequest.find({ user: userId }).populate('dealer');
-        res.status(200).json(requests);
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch user requests', error: error.message });
-    }
+  try {
+    const { userId } = req.params;
+
+    // Fetch all requests belonging to the user
+    const requests = await ScrapRequest.find({ user: userId })
+      .populate('dealer', 'name email')
+      .sort({ updatedAt: -1 });
+
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error("Error fetching user requests:", error);
+    res.status(500).json({ message: 'Failed to fetch user requests', error: error.message });
+  }
 };
+
 export const getAcceptedRequestsForDealer = async (req, res) => {
     try {
         const dealerId = req.user.userId; // Corrected from req.user.id

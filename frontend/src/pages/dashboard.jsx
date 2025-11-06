@@ -32,7 +32,7 @@ const Dashboard = () => {
 
     // Fetch user data only if role is not in localStorage
     axios
-      .get('https://let-scrap.vercel.app/api/users/profile', {
+      .get(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {

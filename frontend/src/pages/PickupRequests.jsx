@@ -1,135 +1,189 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, AlertCircle } from 'lucide-react';
 
-const ScrapRequest = () => {
-  const userId = localStorage.getItem("userId");
-  // console.log("User ID:", userId);  //testing purpose
-  const [formData, setFormData] = useState({
-    user: userId,
-    items: [{ itemType: "", weight: "" }],
-    pickupAddress: { street: "", city: "", state: "", zip: "" },
-  });
+const PickupRequests = () => {
+    // Form state
+    const [itemType, setItemType] = useState('abs'); // Default to 'abs' as seen in screenshot
+    const [weight, setWeight] = useState('');
+    const [street, setStreet] = useState('');
+    const [city, setCity] = useState('');
+    const [zipCode, setZipCode] = useState('');
 
-  const handleAddressChange = (e) => {
-    setFormData({
-      ...formData,
-      pickupAddress: {
-        ...formData.pickupAddress,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
+    // UI state
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const handleItemChange = (e, field) => {
-    setFormData({
-      ...formData,
-      items: [{ ...formData.items[0], [field]: e.target.value }],
-    });
-  };
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-    if (
-      !formData.items[0].itemType ||
-      !formData.items[0].weight ||
-      !formData.pickupAddress.street
-    ) {
-      alert("Please fill in all required fields.");
-      return;
-    }
+        // --- SDE: Get Auth Info ---
+        // ✅ Corrected Auth Info extraction
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const userId = userInfo?.id;
+        const token = userInfo?.token;
 
-    try {
-      const response = await axios.post(
-        "https://let-scrap.vercel.app/api/scrap-requests/pickup-request",
-        {
-          ...formData,
-          user: userId,
-          status: "Pending",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
+        if (!userId || !token) {
+            setError("You must be logged in to make a request.");
+            setLoading(false);
+            return;
         }
-      );
-      alert(response.data.message);
-      setFormData({
-        user: userId,
-        items: [{ itemType: "", weight: "" }],
-        pickupAddress: { street: "", city: "", state: "", zip: "" },
-      });
-    } catch (error) {
-      alert(`Error: ${error?.response?.data?.message || "Unknown error"}`);
-      console.error("Backend error:", error?.response?.data);
-      // console.error("Axios error:", error);
-      // alert("Failed to create scrap request");
-    }
-  };
 
-  return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Create Scrap Request</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          name="itemType"
-          placeholder="Item Type"
-          className="border p-2 w-full"
-          value={formData.items[0].itemType}
-          onChange={(e) => handleItemChange(e, "itemType")}
-          required
-        />
-        <input
-          type="number"
-          name="weight"
-          placeholder="Weight (kg)"
-          className="border p-2 w-full"
-          value={formData.items[0].weight}
-          onChange={(e) => handleItemChange(e, "weight")}
-          required
-        />
-        <input
-          type="text"
-          name="street"
-          placeholder="Street"
-          className="border p-2 w-full"
-          value={formData.pickupAddress.street}
-          onChange={handleAddressChange}
-          required
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          className="border p-2 w-full"
-          value={formData.pickupAddress.city}
-          onChange={handleAddressChange}
-        />
-        <input
-          type="text"
-          name="state"
-          placeholder="State"
-          className="border p-2 w-full"
-          value={formData.pickupAddress.state}
-          onChange={handleAddressChange}
-        />
-        <input
-          type="text"
-          name="zip"
-          placeholder="ZIP Code"
-          className="border p-2 w-full"
-          value={formData.pickupAddress.zip}
-          onChange={handleAddressChange}
-        />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          Submit Request
-        </button>
-      </form>
-    </div>
-  );
+        // -------------------------
 
+        // Construct the payload
+        const requestData = {
+            user: userId,
+            items: [
+                {
+                    itemType: itemType,
+                    weight: parseFloat(weight),
+                },
+            ],
+            pickupAddress: {
+                street: street,
+                city: city,
+                zipCode: zipCode,
+            },
+            status: 'Pending', // Initial status
+        };
 
+        try {
+            // --- SDE FIX ---
+            // Updated the URL to match your backend route:
+            // '/api/scrap-requests' + '/pickup-request'
+            await axios.post(
+                `${process.env.REACT_APP_API_URL}/api/scrap-requests/pickup-request`,
+                requestData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            // --- END FIX ---
+
+            setLoading(false);
+            // SDE: On success, redirect to the "View" page (the "Menu")
+            navigate('/pickup-status');
+
+        } catch (err) {
+            console.error("Error creating scrap request:", err);
+            setError(err.response?.data?.message || "Failed to create request. Please try again.");
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto p-4 md:p-8 font-sans">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Request a New Pickup</h1>
+
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 space-y-4">
+                {/* --- Error Message --- */}
+                {error && (
+                    <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
+                        <AlertCircle size={20} />
+                        <span>{error}</span>
+                    </div>
+                )}
+
+                {/* --- Item Details --- */}
+                <fieldset className="space-y-2">
+                    <legend className="text-lg font-semibold text-gray-700">Item Details</legend>
+                    <div>
+                        <label htmlFor="itemType" className="block text-sm font-medium text-gray-600">Scrap Type</label>
+                        <select
+                            id="itemType"
+                            value={itemType}
+                            onChange={(e) => setItemType(e.target.value)}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="abs">ABS</option>
+                            <option value="iron">Iron</option>
+                            <option value="paper">Paper</option>
+                            <option value="plastic">Plastic</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="weight" className="block text-sm font-medium text-gray-600">Approx. Weight (kg)</label>
+                        <input
+                            type="number"
+                            id="weight"
+                            value={weight}
+                            onChange={(e) => setWeight(e.target.value)}
+                            placeholder="e.g., 2.5"
+                            required
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                </fieldset>
+
+                {/* --- Address Details --- */}
+                <fieldset className="space-y-2">
+                    <legend className="text-lg font-semibold text-gray-700">Pickup Address</legend>
+                    <div>
+                        <label htmlFor="street" className="block text-sm font-medium text-gray-600">Street Address</label>
+                        <input
+                            type="text"
+                            id="street"
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            placeholder="e.g., 123 Main St"
+                            required
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="city" className="block text-sm font-medium text-gray-600">City</label>
+                            <input
+                                type="text"
+                                id="city"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                placeholder="e.g., Allahabad"
+                                required
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-600">Zip Code</label>
+                            <input
+                                type="text"
+                                id="zipCode"
+                                value={zipCode}
+                                onChange={(e) => setZipCode(e.target.value)}
+                                placeholder="e.g., 211004"
+                                required
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+                </fieldset>
+
+                {/* --- Submit Button --- */}
+                <div className="pt-2">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full flex justify-center items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                Submitting...
+                            </>
+                        ) : (
+                            'Submit Pickup Request'
+                        )}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
 };
 
-export default ScrapRequest;
+export default PickupRequests;
+

@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        select: false
+        select: false // Keep password hidden by default
     },
     role: {
         type: String,
@@ -25,18 +25,17 @@ const UserSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        unique: true,
-        sparse: true
+        // Removed unique: true as phone numbers might not be strictly unique depending on requirements
+        // sparse: true // Only index documents that have this field
     },
     address: {
         street: String,
         city: String,
         state: String,
         zip: String,
-        country: String
+        country: String // Added country based on previous schema
     },
-    // --- ADDED FOR RATINGS ---
-    // These fields will only be used when the role is 'dealer'.
+    // Dealer-specific fields
     averageRating: {
         type: Number,
         default: 0
@@ -44,10 +43,19 @@ const UserSchema = new mongoose.Schema({
     ratingCount: {
         type: Number,
         default: 0
+    },
+    // --- New Field for Avatar Selection ---
+    avatarSeed: {
+        type: String,
+        default: 'email' // Default to using email if not set
     }
+    // ------------------------------------
 }, {
-    timestamps: true
+    timestamps: true // Adds createdAt and updatedAt automatically
 });
+
+// Create index on email for faster lookups
+UserSchema.index({ email: 1 });
 
 const User = mongoose.model('User', UserSchema);
 
