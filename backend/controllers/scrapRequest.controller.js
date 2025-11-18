@@ -28,7 +28,7 @@ export const getAllScrapRequests = async (req, res) => {
     try {
         const requests = await ScrapRequest.find({})
             .populate('user', 'name email')
-            .populate('dealer', 'name email');
+            .populate('dealer', 'name email averageRating ratingCount')
         res.status(200).json(requests);
     } catch (error) {
         res.status(500).json({
@@ -40,6 +40,7 @@ export const getAllScrapRequests = async (req, res) => {
 export const updateScrapRequestStatus = async (req, res) => {
     try {
         const { requestId, status, dealerId, timeSlot, pickupDate } = req.body;
+
         const updatedRequest = await ScrapRequest.findByIdAndUpdate(
             requestId,
             {
@@ -49,22 +50,27 @@ export const updateScrapRequestStatus = async (req, res) => {
                 pickupDate: pickupDate || null,
             },
             { new: true }
-        ).populate('user').populate('dealer');
+        )
+        .populate('user', 'name email')
+        .populate('dealer', 'name email averageRating ratingCount');
 
         if (!updatedRequest) {
             return res.status(404).json({ message: 'Scrap request not found' });
         }
+
         res.status(200).json({
             message: 'Scrap request updated successfully',
             request: updatedRequest
         });
     } catch (error) {
+        console.error("Error updating scrap request status:", error);
         res.status(500).json({
             message: 'Failed to update scrap request',
             error: error.message
         });
     }
 };
+
 export const deleteScrapRequest = async (req, res) => {
     try {
         const { requestId } = req.params;
@@ -89,7 +95,7 @@ export const getUserRequests = async (req, res) => {
 
     // Fetch all requests belonging to the user
     const requests = await ScrapRequest.find({ user: userId })
-      .populate('dealer', 'name email')
+      .populate('dealer', 'name email averageRating ratingCount')
       .sort({ updatedAt: -1 });
 
     res.status(200).json(requests);
@@ -204,5 +210,36 @@ export const submitReview = async (req, res) => {
         console.error("Error submitting review:", error);
         res.status(500).json({ message: 'Server error while submitting review.' });
     }
+};
+
+// ==============================
+// 🆕 Get User Earnings Summary
+// ==============================
+export const getUserEarningsSummary = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch all completed requests for the user
+    const completedRequests = await ScrapRequest.find({
+      user: userId,
+      status: "Completed",
+    });
+
+    const totalEarnings = completedRequests.reduce(
+      (sum, r) => sum + (r.earnings || 0),
+      0
+    );
+
+    res.status(200).json({
+      totalEarnings,
+      totalCompleted: completedRequests.length,
+    });
+  } catch (error) {
+    console.error("Error fetching earnings summary:", error);
+    res.status(500).json({
+      message: "Failed to fetch earnings summary",
+      error: error.message,
+    });
+  }
 };
 

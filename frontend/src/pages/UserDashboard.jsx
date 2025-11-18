@@ -6,7 +6,7 @@ import axios from "axios";
 const UserDashboard = () => {
   const navigate = useNavigate();
 
-  // --- FIXED: Unified user info retrieval ---
+  // --- User Info ---
   const storedUserInfo = localStorage.getItem("userInfo");
   const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const name = userInfo?.name;
@@ -15,8 +15,10 @@ const UserDashboard = () => {
   const token = userInfo?.token;
 
   const [history, setHistory] = useState([]);
+  const [summary, setSummary] = useState({ totalEarnings: 0, totalCompleted: 0 });
   const [loading, setLoading] = useState(true);
 
+  // --- Fetch history + summary ---
   useEffect(() => {
     const fetchHistory = async () => {
       if (!userId || !token) {
@@ -35,9 +37,26 @@ const UserDashboard = () => {
         setLoading(false);
       }
     };
-    fetchHistory();
+
+    const fetchSummary = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/scrap-requests/user/${userId}/summary`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSummary(response.data);
+      } catch (error) {
+        console.error("Failed to fetch earnings summary", error);
+      }
+    };
+
+    if (userId && token) {
+      fetchHistory();
+      fetchSummary();
+    }
   }, [userId, token]);
 
+  // --- Logout handler ---
   const handleLogout = () => {
     localStorage.clear();
     window.dispatchEvent(new Event("authChange"));
@@ -60,6 +79,7 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 px-6 py-10">
       <div className="max-w-4xl mx-auto">
+        {/* --- User Info Section --- */}
         <div className="bg-white shadow-2xl rounded-2xl p-8 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
@@ -79,6 +99,20 @@ const UserDashboard = () => {
             </button>
           </div>
 
+          {/* --- Earnings Summary --- */}
+          <div className="bg-gradient-to-r from-green-400 to-green-600 text-white rounded-2xl shadow-xl p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-2">Your Scrap Summary</h2>
+            <p className="text-lg">
+              💰 <span className="font-semibold">Total Earnings:</span> ₹
+              {summary.totalEarnings.toFixed(2)}
+            </p>
+            <p className="text-lg mt-1">
+              ✅ <span className="font-semibold">Completed Pickups:</span>{" "}
+              {summary.totalCompleted}
+            </p>
+          </div>
+
+          {/* --- Action Cards --- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
             <Link
               to="/pickup-requests"
@@ -130,6 +164,7 @@ const UserDashboard = () => {
           </div>
         </div>
 
+        {/* --- Completed Orders --- */}
         <div className="bg-white shadow-2xl rounded-2xl p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
             <CheckCircle className="text-green-500" />

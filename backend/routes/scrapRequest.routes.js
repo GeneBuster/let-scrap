@@ -9,7 +9,8 @@ import {
     markRequestAsPickedUp,
     completeScrapRequest,
     // 1. Import the new controller function.
-    submitReview
+    submitReview,
+     getUserEarningsSummary,
 } from '../controllers/scrapRequest.controller.js';
 import { authMiddleware } from '../utils/auth.middleware.js';
 
@@ -25,6 +26,8 @@ router.get('/user/:userId', authMiddleware, getUserRequests);
 router.get('/accepted', authMiddleware, getAcceptedRequestsForDealer);
 router.put('/mark-picked-up/:id', authMiddleware, markRequestAsPickedUp);
 router.put('/complete/:id', authMiddleware, completeScrapRequest);
+
+router.get('/user/:userId/summary', authMiddleware, getUserEarningsSummary);
 
 // 2. Add the new route for submitting a review for a specific request.
 // It uses a POST request as we are creating a new entity (a review).
